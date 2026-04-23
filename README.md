@@ -4,13 +4,15 @@ This repository contains the experimental pipeline developed for benchmarking th
 
 ## Project Structure:
 
-- src/                      Python source code for the evaluation pipeline
-- prompts/                  Prompt templates (simple and structured strategies)
-- dataset/                  JSON file containing the 20 vulnerable code samples
-- results/                  Raw API responses and computed metrics
-- logs/                     Execution logs
-- requirements.txt          Python dependencies
-- .gitignore                A file that you define in Git specifying which files or folders should be ignored and not included in version control.
+| Path            | Description |
+|-------------------|----------|
+| `src/`            | Python source code for the evaluation pipeline |
+| `prompts/`        | Prompt templates (simple and structured strategies) |
+| `dataset/`        | JSON file containing the 20 vulnerable code samples |
+| `results/`        | Raw API responses and computed metrics |
+| `logs/`           | Execution logs |
+| `requirements.txt`| Python dependencies |
+| `.gitignore`      | Specifies which files Git should ignore |
 
 ## Requirements:
 
@@ -38,12 +40,13 @@ This repository contains the experimental pipeline developed for benchmarking th
    `python3 src/report_generator.py`
 
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
-   `python3 category_performance.py`
-   `python3 compare_results.py`
-   `python3 consistency_analysis.py`
-   `python3 difficulty_comparison.py`
-   `python3 error_by_category.py`
-   `python3 extract_failures.py`
+```bash
+python3 category_performance.py
+python3 compare_results.py
+python3 consistency_analysis.py
+python3 difficulty_comparison.py
+python3 error_by_category.py
+python3 extract_failures.py
 
 The raw JSON responses from the API will be stored in results/raw/, and the computed metrics will be saved to results/metrics/all_metrics.json.
 
