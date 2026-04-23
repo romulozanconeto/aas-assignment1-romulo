@@ -1,0 +1,36 @@
+{
+  "case_id": "A02_SIMPLE_001",
+  "prompt_strategy": "structured",
+  "execution": 1,
+  "timestamp": 1776790894.8642292,
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "The provided Python code snippet is vulnerable due to its use of a weak hashing algorithm for password storage.\n\n```python\nimport hashlib\ndef store_password(password):\n    hashed = hashlib.md5(password.encode()).hexdigest()\n    database.save('user', hashed)\n```\n\n## Vulnerability Analysis\n\n### 1. Weak Cryptographic Hashing Algorithm (MD5) and Lack of Salting\n\n*   **OWASP Top 10 (2021) Category**: A02:2021 \u2013 Cryptographic Failures\n\n*   **Explanation of Risk**:\n    *   **MD5 is Cryptographically Broken for Password Storage**: MD5 is a very fast hashing algorithm and has known vulnerabilities, including collision attacks. While collision attacks don't directly mean an attacker can recover the original password from a hash (pre-image resistance), the speed of MD5 makes it highly susceptible to other attacks.\n    *   **Rainbow Table Attacks**: Because MD5 is fast and the code does not use a unique \"salt\" for each password, an attacker can pre-compute a \"rainbow table\" \u2013 a large database of common passwords and their corresponding MD5 hashes. If an attacker breaches the database and obtains the MD5 hashes, they can quickly look up and recover the original passwords for many users using these tables.\n    *   **Brute-Force Attacks**: The high speed of MD5 allows attackers to test billions of password guesses per second, especially with modern GPU acceleration. Even moderately complex passwords can be cracked in a relatively short time without proper protection.\n    *   **Identical Hashes for Identical Passwords**: Without a unique salt for each password, if two users happen to choose the same password, they will have identical MD5 hashes stored in the database. An attacker instantly knows these users share the same password and only needs to crack it once to compromise multiple accounts.\n\n*   **Secure Fix with Code Example**:\n    The industry standard for password storage is to use modern, slow, and salted password hashing functions. Recommended algorithms include **bcrypt**, **Argon2**, or **scrypt**. Python's `passlib` library can facilitate using these, or you can use `bcrypt` directly.\n\n    Here's how to fix it using the `bcrypt` library (which you'd install via `pip install bcrypt`):\n\n    ```python\n    import bcrypt # You would need to install bcrypt: pip install bcrypt\n\n    # Function to hash a password securely\n    def hash_password_secure(password):\n        # 1. Encode the password to bytes (bcrypt expects bytes)\n        password_bytes = password.encode('utf-8')\n\n        # 2. Generate a salt and hash the password using bcrypt.\n        #    bcrypt.gensalt() generates a unique, random salt each time.\n        #    bcrypt.hashpw handles salting, hashing, and iteration count automatically.\n        #    The salt and algorithm parameters are embedded within the resulting hash string.\n        hashed_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())\n\n        # 3. Decode the hashed bytes to a string for storage in the database\n        return hashed_bytes.decode('utf-8')\n\n    # Original function, now using the secure hashing\n    def store_password(password):\n        hashed_password_string = hash_password_secure(password)\n\n        # Save the hashed password to the database\n        # Note: In a real application, 'user' would be a dynamic username or user ID.\n        # The original code's `database.save('user', hashed)` implies a generic key,\n        # which isn't practical for storing multiple users.\n        # This fix addresses the hashing part, assuming `database.save` still works.\n        database.save('user', hashed_password_string)\n\n    # --- How to verify a password later (for login) ---\n    def verify_password(entered_password, stored_hash):\n        # Encode entered password and stored hash to bytes for bcrypt.checkpw\n        entered_password_bytes = entered_password.encode('utf-8')\n        stored_hash_bytes = stored_hash.encode('utf-8')\n        try:\n            # bcrypt.checkpw extracts the salt from stored_hash and re-hashes\n            # entered_password with that salt for comparison.\n            return bcrypt.checkpw(entered_password_bytes, stored_hash_bytes)\n        except ValueError:\n            # Handle cases where the stored_hash might be malformed or not a bcrypt hash\n            return False\n\n    # Example Usage (assuming 'database' is an accessible object):\n    # class MockDatabase:\n    #     def __init__(self):\n    #         self.data = {}\n    #     def save(self, key, value):\n    #         print(f\"Database: Saving '{value}' for '{key}'\")\n    #         self.data[key] = value\n    #     def get(self, key):\n    #         return self.data.get(key)\n    #\n    # database = MockDatabase()\n    #\n    # user_password = \"MySuperSecretPassword123!\"\n    # store_password(user_password) # This will now call the secure hashing\n    #\n    # stored_hash_from_db = database.get('user')\n    # print(f\"Stored Hash: {stored_hash_from_db}\")\n    #\n    # # Verifying a correct password\n    # is_correct = verify_password(user_password, stored_hash_from_db)\n    # print(f\"Verification (Correct Password): {is_correct}\") # Should be True\n    #\n    # # Verifying an incorrect password\n    # is_incorrect = verify_password(\"WrongPassword!\", stored_hash_from_db)\n    # print(f\"Verification (Incorrect Password): {is_incorrect}\") # Should be False\n    ```"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 123,
+      "candidatesTokenCount": 1295,
+      "totalTokenCount": 3883,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 123
+        }
+      ],
+      "thoughtsTokenCount": 2465
+    },
+    "modelVersion": "gemini-2.5-flash",
+    "responseId": "Wq3nafWvDJ3wxN8P68nm-As"
+  }
+}

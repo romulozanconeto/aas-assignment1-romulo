@@ -1,0 +1,36 @@
+{
+  "case_id": "A01_COMPLEX_001",
+  "prompt_strategy": "structured",
+  "execution": 2,
+  "timestamp": 1776790753.026902,
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "The provided Python code snippet implements a basic document retrieval and authorization mechanism. After analyzing the code, one significant security vulnerability related to information disclosure through differentiated error responses has been identified.\n\n---\n\n### Identified Vulnerability: Information Disclosure via Differentiated Error Responses\n\n1.  **OWASP Top 10 (2021) Classification:**\n    *   **A01:2021-Broken Access Control** (specifically, Information Disclosure).\n    *   This issue relates to improperly restricting access to information about resources. While the code correctly prevents unauthorized users from accessing the *content* of a document, it leaks information about the *existence* of documents.\n\n2.  **Explanation of Risk:**\n    The current implementation distinguishes between two scenarios for an unauthorized user:\n    *   If `doc_id` refers to a document that exists but the user is not authorized to view it (i.e., not an admin and not the owner), the function returns `'Access denied'`.\n    *   If `doc_id` refers to a document that does not exist in the `documents` collection, a `KeyError` is raised (assuming `documents` is a dictionary-like structure and `doc_id` is used as a key).\n\n    This distinction is a security vulnerability. An attacker can probe various `doc_id` values and observe the difference in responses. By doing so, they can enumerate valid `doc_id` values (those that return `'Access denied'`) versus invalid ones (those that raise a `KeyError`). This information leak allows an attacker to build a list of existing document IDs within the system, even if they cannot access their content. This knowledge can be valuable for further attacks, such as targeted social engineering, exploiting other vulnerabilities related to specific document IDs, or simply understanding the application's data structure and extent.\n\n3.  **Secure Fix with Code Example:**\n    The fix involves ensuring that all unauthorized access attempts, whether due to non-existent documents or existing but unauthorized documents, result in the same generic error message. This prevents an attacker from distinguishing between these states.\n\n    ```python\n    class Document:\n        def __init__(self, owner, content):\n            self.owner = owner\n            self.content = content\n\n    # Assume 'documents' is a globally accessible dictionary (or similar data structure)\n    # mapping doc_id to Document objects. For example:\n    # documents = {\n    #     1: Document('alice', 'This is Alice\\'s secret document.'),\n    #     2: Document('bob', 'Bob\\'s confidential report.'),\n    #     3: Document('alice', 'Another document by Alice.')\n    # }\n\n    def get_document_secure(doc_id, user):\n        # Attempt to retrieve the document safely.\n        # Use .get() to return None if doc_id does not exist, instead of raising KeyError.\n        doc = documents.get(doc_id)\n\n        # First, check if the document exists. If not, return 'Access denied'.\n        # This makes the response for non-existent documents identical to\n        # existing but unauthorized documents.\n        if doc is None:\n            return 'Access denied'\n\n        # Now that we know the document exists, proceed with authorization checks.\n        if user.role == 'admin':\n            return doc.content\n        if doc.owner == user.username:\n            return doc.content\n\n        # If none of the above conditions are met, the user is not authorized.\n        return 'Access denied'\n\n    # Example Usage (assuming a User class exists):\n    # class User:\n    #     def __init__(self, username, role):\n    #         self.username = username\n    #         self.role = role\n    #\n    # admin_user = User('superadmin', 'admin')\n    # alice_user = User('alice', 'user')\n    # bob_user = User('bob', 'user')\n    # guest_user = User('guest', 'user')\n    #\n    # # Test cases:\n    # # Admin access (should get content for any existing doc)\n    # print(f\"Admin getting doc 1: {get_document_secure(1, admin_user)}\")\n    #\n    # # Owner access (should get content for their own doc)\n    # print(f\"Alice getting doc 1: {get_document_secure(1, alice_user)}\")\n    #\n    # # Unauthorized user getting an existing doc (should get 'Access denied')\n    # print(f\"Alice getting doc 2: {get_document_secure(2, alice_user)}\")\n    #\n    # # Unauthorized user getting a non-existent doc (should also get 'Access denied')\n    # print(f\"Guest getting non-existent doc 999: {get_document_secure(999, guest_user)}\")\n    ```\n\n---"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 177,
+      "candidatesTokenCount": 1069,
+      "totalTokenCount": 5156,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 177
+        }
+      ],
+      "thoughtsTokenCount": 3910
+    },
+    "modelVersion": "gemini-2.5-flash",
+    "responseId": "xqznaamzCuT9nsEP18iX2Aw"
+  }
+}

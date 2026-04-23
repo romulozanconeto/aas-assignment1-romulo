@@ -1,0 +1,7 @@
+Analyze the following code for security vulnerabilities. For each issue you identify:
+
+1. Classify the vulnerability according to OWASP Top 10 (2021) categories
+2. Explain the risk: how could an attacker exploit this?
+3. Propose a secure fix with code example
+
+If you find no vulnerabilities, state this explicitly. Do not invent issues that are not present.

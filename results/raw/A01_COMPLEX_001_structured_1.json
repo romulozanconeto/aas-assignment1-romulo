@@ -1,0 +1,36 @@
+{
+  "case_id": "A01_COMPLEX_001",
+  "prompt_strategy": "structured",
+  "execution": 1,
+  "timestamp": 1776790721.0126483,
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "The provided Python code snippet has one significant security vulnerability related to how it handles document retrieval.\n\n---\n\n### Vulnerability 1: Unhandled Exception Leading to Information Leakage and Potential Denial of Service\n\n1.  **OWASP Top 10 (2021) Classification:**\n    *   **A01:2021 - Broken Access Control** (specifically related to Insecure Direct Object References (IDOR) due to improper error handling).\n    *   Could also be argued as part of **A04:2021 - Insecure Design** due to a lack of robust error handling in a critical component.\n\n2.  **Explanation of Risk:**\n    *   The line `doc = documents[doc_id]` directly accesses a document using the `doc_id` provided by the caller. If `doc_id` does not correspond to an existing document in the `documents` collection (e.g., if `documents` is a dictionary and `doc_id` is not a key, or if `documents` is a list and `doc_id` is an out-of-bounds index), this operation will raise an exception (e.g., `KeyError` or `IndexError`).\n    *   **Information Leakage**: An unhandled exception in a production environment can lead to the exposure of sensitive internal error messages, stack traces, or system configuration details to the attacker. Attackers can use this information to understand the system's architecture, identify valid document IDs, or discover other vulnerabilities. For example, by sending requests with various `doc_id` values, an attacker could observe whether a `KeyError` is returned (meaning the document ID does not exist) versus an \"Access denied\" message (meaning the document ID exists but the user is not authorized). This distinction allows an attacker to enumerate existing document IDs, making brute-force attempts or targeted attacks easier.\n    *   **Denial of Service (DoS)**: If the application's environment is configured to crash or restart upon unhandled exceptions, an attacker could repeatedly send requests with invalid `doc_id`s, causing frequent application crashes and leading to a denial of service for legitimate users.\n\n3.  **Secure Fix with Code Example:**\n    The fix involves using a `try-except` block to gracefully handle cases where the `doc_id` does not refer to an existing document. It's crucial to return a generic \"Access denied\" message in such cases, preventing attackers from distinguishing between a non-existent document and an existing one they are not authorized to view.\n\n    ```python\n    # Assume 'documents' is a dictionary mapping doc_id to Document objects\n    # For demonstration purposes:\n    # documents = {\n    #     'doc_123': Document('alice', 'Secret plan for world domination'),\n    #     'doc_456': Document('bob', 'My grocery list'),\n    # }\n\n    # class User:\n    #     def __init__(self, username, role):\n    #         self.username = username\n    #         self.role = role\n\n    class Document:\n        def __init__(self, owner, content):\n            self.owner = owner\n            self.content = content\n\n    def get_document_secure(doc_id, user):\n        doc = None\n        try:\n            doc = documents[doc_id]\n        except KeyError:\n            # IMPORTANT: Return a generic message.\n            # This prevents an attacker from learning whether a doc_id exists or not.\n            return 'Access denied' \n        except Exception as e: # Catch any other potential errors during retrieval\n            # Log the error for debugging, but don't expose details to the user\n            print(f\"Error retrieving document {doc_id}: {e}\") \n            return 'Access denied'\n\n        # Now that we know 'doc' exists, apply the authorization logic\n        if user.role == 'admin':\n            return doc.content\n        if doc.owner == user.username:\n            return doc.content\n            \n        return 'Access denied'\n\n    # Example Usage (assuming 'documents' and 'User' class are defined elsewhere):\n    # documents = {\n    #     'doc_123': Document('alice', 'Secret plan for world domination'),\n    #     'doc_456': Document('bob', 'My grocery list'),\n    # }\n    # class User:\n    #     def __init__(self, username, role):\n    #         self.username = username\n    #         self.role = role\n\n    # admin_user = User('sysadmin', 'admin')\n    # alice = User('alice', 'user')\n    # bob = User('bob', 'user')\n    # charlie = User('charlie', 'user')\n\n    # print(get_document_secure('doc_123', alice))        # Expected: Content (Alice is owner)\n    # print(get_document_secure('doc_123', bob))          # Expected: Access denied (Bob is not owner)\n    # print(get_document_secure('doc_456', admin_user))   # Expected: Content (Admin access)\n    # print(get_document_secure('non_existent_doc', alice)) # Expected: Access denied (no KeyError leak)\n    ```"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 177,
+      "candidatesTokenCount": 1165,
+      "totalTokenCount": 3928,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 177
+        }
+      ],
+      "thoughtsTokenCount": 2586
+    },
+    "modelVersion": "gemini-2.5-flash",
+    "responseId": "raznaaavJZjUxN8PwcK7-Qo"
+  }
+}

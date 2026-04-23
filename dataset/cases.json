@@ -1,0 +1,224 @@
+{
+  "cases": [
+    {
+      "id": "A01_SIMPLE_001",
+      "language": "javascript",
+      "code": "app.get('/admin', (req, res) => {\n  if (req.session.isAdmin) {\n    res.send('Admin panel');\n  } else {\n    res.send('Access denied');\n  }\n});",
+      "category": "A01",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Broken Access Control"],
+      "ground_truth_category": "A01 - Broken Access Control",
+      "ground_truth_risk": "The session.isAdmin flag can be manipulated by an attacker if session handling is not properly implemented.",
+      "ground_truth_mitigation": "Implement server-side session validation with proper authentication middleware."
+    },
+    {
+      "id": "A01_COMPLEX_001",
+      "language": "python",
+      "code": "class Document:\n    def __init__(self, owner, content):\n        self.owner = owner\n        self.content = content\n\ndef get_document(doc_id, user):\n    doc = documents[doc_id]\n    if user.role == 'admin':\n        return doc.content\n    if doc.owner == user.username:\n        return doc.content\n    return 'Access denied'",
+      "category": "A01",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Broken Access Control"],
+      "ground_truth_category": "A01 - Broken Access Control",
+      "ground_truth_risk": "The role check for 'admin' is too permissive and does not verify if the admin user is authorized to access this specific document.",
+      "ground_truth_mitigation": "Implement granular permission checks based on document-level access control lists."
+    },
+    {
+      "id": "A02_SIMPLE_001",
+      "language": "python",
+      "code": "import hashlib\ndef store_password(password):\n    hashed = hashlib.md5(password.encode()).hexdigest()\n    database.save('user', hashed)",
+      "category": "A02",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Cryptographic Failure", "Weak Hashing"],
+      "ground_truth_category": "A02 - Cryptographic Failures",
+      "ground_truth_risk": "MD5 is a cryptographically broken hash function. Attackers can reverse MD5 hashes using rainbow tables or collision attacks.",
+      "ground_truth_mitigation": "Use bcrypt, Argon2, or PBKDF2 with a cost factor and salt for password storage."
+    },
+    {
+      "id": "A02_COMPLEX_001",
+      "language": "javascript",
+      "code": "const crypto = require('crypto');\nconst key = '0123456789abcdef0123456789abcdef';\nfunction encrypt(data) {\n    const cipher = crypto.createCipher('aes-256-cbc', key);\n    return cipher.update(data, 'utf8', 'hex') + cipher.final('hex');\n}",
+      "category": "A02",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Cryptographic Failure", "Hardcoded Key"],
+      "ground_truth_category": "A02 - Cryptographic Failures",
+      "ground_truth_risk": "The encryption key is hardcoded and visible in source code. Anyone with access to the code can decrypt all encrypted data.",
+      "ground_truth_mitigation": "Store encryption keys in environment variables or a key management service."
+    },
+    {
+      "id": "A03_SIMPLE_001",
+      "language": "javascript",
+      "code": "app.get('/user', (req, res) => {\n  const userId = req.query.id;\n  const query = 'SELECT * FROM users WHERE id = ' + userId;\n  db.execute(query, (err, result) => {\n    if (err) res.status(500).send('Database error');\n    else res.json(result);\n  });\n});",
+      "category": "A03",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["SQL Injection"],
+      "ground_truth_category": "A03 - Injection",
+      "ground_truth_risk": "An attacker can manipulate the id parameter to alter the SQL query structure, potentially reading all user records or dropping tables.",
+      "ground_truth_mitigation": "Replace string concatenation with parameterized queries or prepared statements."
+    },
+    {
+      "id": "A03_COMPLEX_001",
+      "language": "python",
+      "code": "import subprocess\ndef ping_host(request):\n    hostname = request.GET.get('host')\n    result = subprocess.run(f'ping -c 4 {hostname}', shell=True, capture_output=True)\n    return HttpResponse(result.stdout)",
+      "category": "A03",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Command Injection"],
+      "ground_truth_category": "A03 - Injection",
+      "ground_truth_risk": "An attacker can inject additional commands by providing input like 'google.com; rm -rf /'.",
+      "ground_truth_mitigation": "Use subprocess.run with list arguments and avoid shell=True. Validate hostname against a whitelist."
+    },
+    {
+      "id": "A04_SIMPLE_001",
+      "language": "python",
+      "code": "def login(request):\n    username = request.POST.get('username')\n    password = request.POST.get('password')\n    user = authenticate(username, password)\n    if user:\n        login(request, user)\n        return redirect('/dashboard')\n    return redirect('/login?error=1')",
+      "category": "A04",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Insecure Design", "Missing Rate Limiting"],
+      "ground_truth_category": "A04 - Insecure Design",
+      "ground_truth_risk": "No rate limiting on login attempts allows brute force attacks against user passwords.",
+      "ground_truth_mitigation": "Implement rate limiting (e.g., 5 attempts per 15 minutes) and account lockout after multiple failures."
+    },
+    {
+      "id": "A04_COMPLEX_001",
+      "language": "javascript",
+      "code": "async function checkout(cart, user) {\n    const stock = await checkStock(cart);\n    if (!stock.available) return 'Out of stock';\n    const price = await calculatePrice(cart);\n    const payment = await processPayment(user, price);\n    if (!payment.success) return 'Payment failed';\n    await confirmOrder(cart);\n    return 'Order confirmed';\n}",
+      "category": "A04",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Insecure Design", "Race Condition"],
+      "ground_truth_category": "A04 - Insecure Design",
+      "ground_truth_risk": "Stock is checked once at the beginning. Between stock check and order confirmation, stock may change, allowing over-selling.",
+      "ground_truth_mitigation": "Perform stock check and reservation atomically within a database transaction."
+    },
+    {
+      "id": "A05_SIMPLE_001",
+      "language": "javascript",
+      "code": "const express = require('express');\nconst app = express();\napp.get('/api/data', (req, res) => {\n    res.send({ data: 'sensitive' });\n});\napp.listen(3000);",
+      "category": "A05",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Security Misconfiguration", "Missing Security Headers"],
+      "ground_truth_category": "A05 - Security Misconfiguration",
+      "ground_truth_risk": "Missing security headers (CSP, X-Frame-Options, HSTS) makes the application vulnerable to clickjacking, XSS, and MITM attacks.",
+      "ground_truth_mitigation": "Add helmet.js middleware to set secure HTTP headers."
+    },
+    {
+      "id": "A05_COMPLEX_001",
+      "language": "python",
+      "code": "DEBUG = True\nALLOWED_HOSTS = ['*']\nSECRET_KEY = 'insecure-dev-key-123'\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'PASSWORD': 'postgres'\n    }\n}",
+      "category": "A05",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Security Misconfiguration", "Debug Mode Enabled", "Weak Secret Key"],
+      "ground_truth_category": "A05 - Security Misconfiguration",
+      "ground_truth_risk": "Debug mode exposes stack traces and sensitive information. Weak SECRET_KEY allows session tampering.",
+      "ground_truth_mitigation": "Set DEBUG=False in production, use a strong random SECRET_KEY, and restrict ALLOWED_HOSTS."
+    },
+    {
+      "id": "A06_SIMPLE_001",
+      "language": "javascript",
+      "code": "const express = require('express');\nconst bodyParser = require('body-parser');\nconst app = express();\napp.use(bodyParser.urlencoded({ extended: true }));\napp.post('/submit', (req, res) => {\n    res.send('Data received');\n});\napp.listen(3000);",
+      "category": "A06",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Vulnerable Component", "Outdated Dependency"],
+      "ground_truth_category": "A06 - Vulnerable and Outdated Components",
+      "ground_truth_risk": "body-parser versions before 1.19.2 have a denial of service vulnerability (CVE-2021-44906).",
+      "ground_truth_mitigation": "Update body-parser to version 1.19.2 or later. Run npm audit fix regularly."
+    },
+    {
+      "id": "A06_COMPLEX_001",
+      "language": "javascript",
+      "code": "{\n  \"name\": \"legacy-app\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"lodash\": \"4.17.15\",\n    \"express\": \"4.16.0\",\n    \"request\": \"2.88.0\"\n  }\n}",
+      "category": "A06",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Vulnerable Component", "Outdated Dependencies"],
+      "ground_truth_category": "A06 - Vulnerable and Outdated Components",
+      "ground_truth_risk": "lodash 4.17.15 has prototype pollution vulnerability. express 4.16.0 has multiple vulnerabilities. request library is deprecated.",
+      "ground_truth_mitigation": "Update all dependencies to latest stable versions. Use npm audit and Snyk to monitor vulnerabilities."
+    },
+    {
+      "id": "A07_SIMPLE_001",
+      "language": "javascript",
+      "code": "app.post('/login', (req, res) => {\n    if (req.body.password === 'admin123') {\n        req.session.user = 'admin';\n        res.redirect('/admin');\n    } else {\n        res.redirect('/login');\n    }\n});",
+      "category": "A07",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Authentication Failure", "Hardcoded Credentials"],
+      "ground_truth_category": "A07 - Identification and Authentication Failures",
+      "ground_truth_risk": "Hardcoded password 'admin123' is easily guessable. Anyone can authenticate as admin.",
+      "ground_truth_mitigation": "Store hashed passwords in database and implement proper password validation against stored hash."
+    },
+    {
+      "id": "A07_COMPLEX_001",
+      "language": "python",
+      "code": "def reset_password(request):\n    email = request.POST.get('email')\n    user = User.objects.filter(email=email).first()\n    if user:\n        token = str(uuid.uuid4())\n        cache.set(token, user.id, 3600)\n        send_email(email, f'/reset/{token}')\n        return HttpResponse('Email sent')\n    return HttpResponse('Email sent')",
+      "category": "A07",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Authentication Failure", "User Enumeration"],
+      "ground_truth_category": "A07 - Identification and Authentication Failures",
+      "ground_truth_risk": "The same message 'Email sent' is returned regardless of whether the email exists. This prevents user enumeration.",
+      "ground_truth_mitigation": "The code actually handles this correctly. No vulnerability present."
+    },
+    {
+      "id": "A08_SIMPLE_001",
+      "language": "python",
+      "code": "import pickle\ndef load_user_preferences(request):\n    data = request.GET.get('prefs')\n    prefs = pickle.loads(base64.b64decode(data))\n    return HttpResponse(prefs)",
+      "category": "A08",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Data Integrity Failure", "Insecure Deserialization"],
+      "ground_truth_category": "A08 - Software and Data Integrity Failures",
+      "ground_truth_risk": "pickle.loads() on user-supplied data allows remote code execution. An attacker can craft malicious pickle payloads.",
+      "ground_truth_mitigation": "Use JSON instead of pickle. If pickle is required, sign the data with HMAC before deserialization."
+    },
+    {
+      "id": "A08_COMPLEX_001",
+      "language": "javascript",
+      "code": "const jwt = require('jsonwebtoken');\nconst token = jwt.sign({ user: 'alice', role: 'user' }, 'secret');\napp.get('/admin', (req, res) => {\n    const decoded = jwt.verify(req.query.token, 'secret');\n    if (decoded.role === 'admin') {\n        res.send('Admin panel');\n    }\n});",
+      "category": "A08",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Data Integrity Failure", "Weak JWT Secret"],
+      "ground_truth_category": "A08 - Software and Data Integrity Failures",
+      "ground_truth_risk": "JWT secret 'secret' is weak and can be brute-forced. An attacker can forge tokens with admin role.",
+      "ground_truth_mitigation": "Use a strong random secret (minimum 256 bits) and store it in environment variables."
+    },
+    {
+      "id": "A09_SIMPLE_001",
+      "language": "python",
+      "code": "def login(request):\n    user = authenticate(request, username=request.POST['username'], password=request.POST['password'])\n    if user:\n        login(request, user)\n        return redirect('/dashboard')\n    return redirect('/login')",
+      "category": "A09",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["Logging Failure", "Missing Failed Login Logs"],
+      "ground_truth_category": "A09 - Security Logging and Monitoring Failures",
+      "ground_truth_risk": "Failed login attempts are not logged. Security teams cannot detect brute force attacks.",
+      "ground_truth_mitigation": "Log all failed login attempts with timestamp, IP address, and username."
+    },
+    {
+      "id": "A09_COMPLEX_001",
+      "language": "javascript",
+      "code": "function processPayment(req, res) {\n    const cardNumber = req.body.cardNumber;\n    const amount = req.body.amount;\n    console.log(`Processing payment of ${amount} for card ${cardNumber}`);\n    chargeCard(cardNumber, amount);\n    res.send('Payment complete');\n}",
+      "category": "A09",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["Logging Failure", "Sensitive Data in Logs"],
+      "ground_truth_category": "A09 - Security Logging and Monitoring Failures",
+      "ground_truth_risk": "Credit card numbers are being logged in plain text. Log files may be accessible to unauthorized personnel.",
+      "ground_truth_mitigation": "Never log sensitive data. Mask credit card numbers (e.g., log only last 4 digits) or use tokenization."
+    },
+    {
+      "id": "A10_SIMPLE_001",
+      "language": "javascript",
+      "code": "app.get('/fetch', (req, res) => {\n    const url = req.query.url;\n    fetch(url)\n        .then(response => response.text())\n        .then(data => res.send(data))\n        .catch(err => res.status(500).send('Error'));\n});",
+      "category": "A10",
+      "difficulty": "simple",
+      "ground_truth_vuln": ["SSRF"],
+      "ground_truth_category": "A10 - Server-Side Request Forgery",
+      "ground_truth_risk": "An attacker can make the server fetch internal resources (e.g., http://localhost:8080/admin, http://169.254.169.254/latest/meta-data/).",
+      "ground_truth_mitigation": "Validate and whitelist allowed URLs. Block internal IP ranges and localhost."
+    },
+    {
+      "id": "A10_COMPLEX_001",
+      "language": "python",
+      "code": "import requests\ndef webhook(request):\n    callback_url = request.GET.get('callback')\n    if callback_url.startswith('https://api.trusted.com/'):\n        response = requests.get(callback_url, timeout=5)\n        return HttpResponse(response.content)\n    return HttpResponse('Invalid URL')",
+      "category": "A10",
+      "difficulty": "complex",
+      "ground_truth_vuln": ["SSRF", "Incomplete Validation"],
+      "ground_truth_category": "A10 - Server-Side Request Forgery",
+      "ground_truth_risk": "The validation only checks the prefix. An attacker can use 'https://api.trusted.com.evil.com' or 'https://api.trusted.com@169.254.169.254/' to bypass the check.",
+      "ground_truth_mitigation": "Use URL parsing to validate the hostname exactly against a whitelist, not just prefix matching."
+    }
+  ]
+}

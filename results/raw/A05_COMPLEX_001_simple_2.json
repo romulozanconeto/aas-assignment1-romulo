@@ -1,0 +1,36 @@
+{
+  "case_id": "A05_COMPLEX_001",
+  "prompt_strategy": "simple",
+  "execution": 2,
+  "timestamp": 1776789341.3059402,
+  "response": {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "This code snippet contains several critical security vulnerabilities that are common in development environments but must *never* be deployed to production.\n\nHere's a breakdown:\n\n1.  **`DEBUG = True` (Information Disclosure / Debug Mode Enabled)**\n    *   **Vulnerability:** In a production environment, `DEBUG = True` will display detailed error messages and stack traces to users whenever an unhandled exception occurs. This information can reveal sensitive details about your application's internal structure, server paths, installed libraries, configuration, database queries, and even parts of your source code. This significantly aids attackers in understanding your system and finding further vulnerabilities. It can also disable certain security features.\n    *   **Impact:** Information disclosure, potential for easier exploitation of other vulnerabilities, reduced resilience to attacks.\n\n2.  **`ALLOWED_HOSTS = ['*']` (HTTP Host Header Attacks)**\n    *   **Vulnerability:** Allowing all hosts (`*`) means your application will respond to requests made with *any* `Host` header. This makes it susceptible to various HTTP Host Header attacks:\n        *   **Cache Poisoning:** An attacker can craft requests with a malicious `Host` header that, if cached by a proxy or CDN, can lead legitimate users to malicious content or domains.\n        *   **Password Reset Poisoning:** If your application generates absolute URLs (e.g., for password reset links, email verification) using the `Host` header, an attacker can manipulate this header to make the application generate links pointing to their malicious domain.\n        *   **SSRF (Server-Side Request Forgery) in some contexts:** If your application internally uses the `Host` header to make requests, an attacker might be able to redirect those requests.\n    *   **Impact:** Redirection to malicious sites, phishing, account compromise, denial of service.\n\n3.  **`SECRET_KEY = 'insecure-dev-key-123'` (Weak/Predictable Secret Key)**\n    *   **Vulnerability:** The `SECRET_KEY` is used by Django for cryptographic signing (e.g., session cookies, CSRF tokens, password reset tokens, security of signed cookies). Using a hardcoded, publicly known, or very simple/predictable key like `'insecure-dev-key-123'` is extremely dangerous.\n        *   **Session Hijacking:** An attacker who knows or can guess the secret key can forge valid session cookies, allowing them to impersonate any user.\n        *   **CSRF Token Bypass:** They can forge valid Cross-Site Request Forgery (CSRF) tokens, bypassing CSRF protection.\n        *   **Password Reset Token Manipulation:** They could potentially manipulate or forge password reset tokens.\n        *   **Data Tampering:** Any data signed with this key could be tampered with by an attacker.\n    *   **Impact:** Complete compromise of user accounts, bypassing security protections, data integrity compromise.\n\n4.  **`DATABASES = { ... 'PASSWORD': 'postgres' ... }` (Weak/Default Database Credentials)**\n    *   **Vulnerability:** Using a default, well-known, or weak password like `'postgres'` for the database user is a major security flaw.\n    *   **Impact:** If an attacker gains any access to the server (even a low-privilege shell) or if the database is exposed to the network (which it ideally shouldn't be), they can easily gain full access to your entire database. This means they can read, modify, or delete all your application's data, including sensitive user information.\n    *   **Impact:** Complete database compromise, data breach, data manipulation, denial of service.\n\n**Summary of Vulnerabilities:**\n\n*   **Information Disclosure** (`DEBUG = True`)\n*   **Host Header Attacks** (`ALLOWED_HOSTS = ['*']`)\n*   **Weak Cryptographic Key / Predictable Secret** (`SECRET_KEY`)\n*   **Weak/Default Database Credentials** (`DATABASES` password)\n\nThese settings make the application highly vulnerable to various attacks and should be rectified before deploying to any production or even staging environment."
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 81,
+      "candidatesTokenCount": 872,
+      "totalTokenCount": 2038,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 81
+        }
+      ],
+      "thoughtsTokenCount": 1085
+    },
+    "modelVersion": "gemini-2.5-flash",
+    "responseId": "UqfnaYDdL-DMnsEP_KWXiQc"
+  }
+}
