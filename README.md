@@ -29,7 +29,7 @@ python3 -m venv venv
 ````
 <br>
 ```bash
-`source venv/bin/activate
+source venv/bin/activate
 ````
 
 3. Install the required dependencies:
@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ```bash
 `python3 src/report_generator.py
 ````
-   <br>The raw JSON responses from the API will be stored in `results/raw/`, and the computed metrics will be saved to `results/metrics/all_metrics.json`.
+The raw JSON responses from the API will be stored in `results/raw/`, and the computed metrics will be saved to `results/metrics/all_metrics.json`.
 
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
 ```bash
