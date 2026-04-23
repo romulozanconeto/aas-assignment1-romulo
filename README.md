@@ -55,10 +55,10 @@ The raw JSON responses from the API will be stored in `results/raw/`, and the co
 
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
 ```bash
-python3 category_performance.py
+python3 compare_results.py
 ````
 ```bash
-python3 compare_results.py
+python3 category_performance.py
 ````
 ```bash
 python3 consistency_analysis.py
