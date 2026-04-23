@@ -24,20 +24,31 @@ This repository contains the experimental pipeline developed for benchmarking th
 
 1. Clone the repository to your local machine.
 2. Create and activate a Python virtual environment:
-   `python3 -m venv venv`
-   `source venv/bin/activate`
+```bash
+   `python3 -m venv venv
+````
+   `source venv/bin/activate
+````
 
 3. Install the required dependencies:
-   `pip install -r requirements.txt`
+```bash
+   `pip install -r requirements.txt
+````
 
 4. Create a .env file in the project root directory with your API key:
-   `GEMINI_API_KEY=your_api_key_here`
+```bash
+   `GEMINI_API_KEY=your_api_key_here
+````
 
 5. Run the main pipeline script:
-   `python3 src/main.py`
+```bash
+   `python3 src/main.py
+````
 
 6. After execution completes, generate the summary report:
-   `python3 src/report_generator.py`
+```bash
+   `python3 src/report_generator.py
+````
    <br>The raw JSON responses from the API will be stored in `results/raw/`, and the computed metrics will be saved to `results/metrics/all_metrics.json`.
 
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
