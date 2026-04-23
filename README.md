@@ -42,10 +42,20 @@ This repository contains the experimental pipeline developed for benchmarking th
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
 ```bash
 python3 category_performance.py
+````
+```bash
 python3 compare_results.py
+````
+```bash
 python3 consistency_analysis.py
+````
+```bash
 python3 difficulty_comparison.py
+````
+```bash
 python3 error_by_category.py
+````
+```bash
 python3 extract_failures.py
 ````
 The raw JSON responses from the API will be stored in results/raw/, and the computed metrics will be saved to results/metrics/all_metrics.json.
