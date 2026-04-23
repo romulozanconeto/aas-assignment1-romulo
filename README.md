@@ -26,7 +26,7 @@ This repository contains the experimental pipeline developed for benchmarking th
 2. Create and activate a Python virtual environment:
 ```bash
    python3 -m venv venv
-````
+```bash
 `source venv/bin/activate
 ````
 
