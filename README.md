@@ -25,14 +25,15 @@ This repository contains the experimental pipeline developed for benchmarking th
 1. Clone the repository to your local machine.
 2. Create and activate a Python virtual environment:
 ```bash
-   python3 -m venv venv
+python3 -m venv venv
+````
 ```bash
 `source venv/bin/activate
 ````
 
 3. Install the required dependencies:
 ```bash
-`pip install -r requirements.txt
+pip install -r requirements.txt
 ````
 
 4. Create a .env file in the project root directory with your API key:
