@@ -38,6 +38,7 @@ This repository contains the experimental pipeline developed for benchmarking th
 
 6. After execution completes, generate the summary report:
    `python3 src/report_generator.py`
+   The raw JSON responses from the API will be stored in results/raw/, and the computed metrics will be saved to results/metrics/all_metrics.json.
 
 7. After generating the summary report (file: all_metrics.json), there are other scripts that can generate comparison reports:
 ```bash
@@ -58,7 +59,6 @@ python3 error_by_category.py
 ```bash
 python3 extract_failures.py
 ````
-The raw JSON responses from the API will be stored in results/raw/, and the computed metrics will be saved to results/metrics/all_metrics.json.
 
 ## Dataset Description
 
