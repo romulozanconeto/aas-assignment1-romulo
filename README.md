@@ -4,13 +4,13 @@ This repository contains the experimental pipeline developed for benchmarking th
 
 ## Project Structure:
 
-  src/git add git add       # Python source code for the evaluation pipeline
-  prompts/git add git add   Prompt templates (simple and structured strategies)
-  dataset/git add git add   JSON file containing the 20 vulnerable code samples
-  results/git add git add   Raw API responses and computed metrics
-  logs/git add git add      Execution logs
-  requirements.txtgit add   Python dependencies
-  .gitignoregit add git add A file that you define in Git specifying which files or folders should be ignored and not included in version control.
+- src/                      Python source code for the evaluation pipeline
+- prompts/                  Prompt templates (simple and structured strategies)
+- dataset/                  JSON file containing the 20 vulnerable code samples
+- results/                  Raw API responses and computed metrics
+- logs/                     Execution logs
+- requirements.txt          Python dependencies
+- .gitignore                A file that you define in Git specifying which files or folders should be ignored and not included in version control.
 
 ## Requirements:
 
