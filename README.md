@@ -90,4 +90,4 @@ The pipeline calculates precision, recall, and F1-score for each execution, comp
 ## License
 
 This project was developed by Rômulo Angelo Zanco Neto, a Master's student in Information Security at the University of Coimbra, for academic purposes within the scope of the Software Artifact Analysis course.
-Feel free to use and adapt it, provided you give proper attribution.
+This project is licensed under the MIT License.
